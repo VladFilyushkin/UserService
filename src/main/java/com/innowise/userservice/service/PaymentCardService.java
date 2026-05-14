@@ -3,7 +3,6 @@ package com.innowise.userservice.service;
 import com.innowise.userservice.dto.request.PaymentCardFilterRequest;
 import com.innowise.userservice.dto.request.PaymentCardRequest;
 import com.innowise.userservice.dto.response.PaymentCardResponse;
-import com.innowise.userservice.entity.PaymentCard;
 import java.util.List;
 import org.springframework.data.domain.Page;
 

@@ -13,6 +13,7 @@ import lombok.Setter;
 @Setter
 
 public class UserResponse implements Serializable {
+  private Long id;
   private String name;
   private String surname;
   private LocalDateTime birthDate;

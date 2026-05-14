@@ -11,7 +11,7 @@ import lombok.Setter;
 @Getter
 @Setter
 public class PaymentCardResponse {
-
+  private Long id;
   private String number;
   private String holder;
   private LocalDateTime expirationDate;

@@ -17,16 +17,9 @@ bin/
 !**/src/main/**/bin/
 !**/src/test/**/bin/
 
-### Docker files ###
-Dockerfile
-docker-compose.yaml
 
 ### Environment ###
 .env
-
-### Local / Docker Spring configs ###
-src/main/resources/application-local.yaml
-src/main/resources/application-docker.yaml
 
 ### IntelliJ IDEA ###
 .idea

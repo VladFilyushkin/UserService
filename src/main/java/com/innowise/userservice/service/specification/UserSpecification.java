@@ -1,6 +1,5 @@
 package com.innowise.userservice.service.specification;
 
-import com.innowise.userservice.dto.response.UserResponse;
 import com.innowise.userservice.entity.User;
 import jakarta.persistence.criteria.Predicate;
 import java.util.ArrayList;
