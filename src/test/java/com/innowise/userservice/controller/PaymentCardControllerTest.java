@@ -4,7 +4,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.innowise.userservice.config.IntegrationTestBase;
+import com.innowise.userservice.config.BaseIntegrationTest;
 import com.innowise.userservice.dto.request.PaymentCardFilterRequest;
 import com.innowise.userservice.dto.request.PaymentCardRequest;
 import com.innowise.userservice.dto.request.UserRequest;
@@ -20,19 +20,11 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
 import org.springframework.http.MediaType;
-import org.springframework.security.test.context.support.WithMockUser;
-import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 
-@AutoConfigureMockMvc(addFilters = false)
-@SpringBootTest
-@ActiveProfiles("test")
-
-class PaymentCardControllerTest extends IntegrationTestBase {
+class PaymentCardControllerTest extends BaseIntegrationTest {
 
   @Autowired
   private MockMvc mockMvc;
@@ -55,6 +47,7 @@ class PaymentCardControllerTest extends IntegrationTestBase {
     paymentCard.setExpirationDate(LocalDateTime.now().plusMonths(12));
     paymentCard.setActive(true);
     paymentCardRepository.save(paymentCard);
+
 
   }
 

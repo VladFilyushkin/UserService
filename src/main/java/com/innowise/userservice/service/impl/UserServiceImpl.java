@@ -50,7 +50,7 @@ public class UserServiceImpl implements UserService {
 
   @Override
   @Transactional
-  @CacheEvict(value = USERS_CACHE, allEntries = true)
+  @CacheEvict(value = USERS_CACHE, key = "#request.email")
   public UserResponse create(UserRequest request) {
     userRepository.findByEmail(request.getEmail()).ifPresent(user -> {
       throw new UserAlreadyExistsException(request.getEmail());
@@ -75,12 +75,12 @@ public class UserServiceImpl implements UserService {
     return userRepository.findAll(specification, pageable).map(userMapper::fromUserToUserResponse);
   }
   @Override
+  @CacheEvict(value = USERS_CACHE, key = "#id")
   @Transactional
-  @CacheEvict(value = USERS_CACHE, allEntries = true)
   public UserResponse update(Long id, UpdateUserRequest request) {
-
     User user = userRepository.findById(id)
         .orElseThrow(() -> new UserNotFoundException(id));
+
     if (StringUtils.isNotBlank(request.getName())) {
       user.setName(request.getName());
     }
@@ -95,16 +95,16 @@ public class UserServiceImpl implements UserService {
       userRepository.findByEmail(request.getEmail()).ifPresent(existingUser -> {
         throw new UserAlreadyExistsException(request.getEmail());
       });
+
       user.setEmail(request.getEmail());
     }
     User updatedUser = userRepository.save(user);
-
     return userMapper.fromUserToUserResponse(updatedUser);
   }
 
   @Override
   @Transactional
-  @CacheEvict(value = USERS_CACHE, allEntries = true)
+  @CacheEvict(value = USERS_CACHE, key = "#id")
   public void deactivate(Long id) {
     User user = userRepository.findByIdAndActiveTrue(id)
         .orElseThrow(() ->
@@ -115,7 +115,7 @@ public class UserServiceImpl implements UserService {
 
   @Override
   @Transactional
-  @CacheEvict(value = USERS_CACHE, allEntries = true)
+  @CacheEvict(value = USERS_CACHE, key = "#id")
   public void delete(Long id) {
     userRepository.findById(id).orElseThrow(() ->
         new UserNotFoundException(id));
