@@ -3,11 +3,11 @@
 -- changeset vladfilyushkin:1
 CREATE TABLE IF NOT EXISTS users (
                        id BIGSERIAL PRIMARY KEY,
-                       name VARCHAR(255),
-                       surname VARCHAR(255),
-                       birth_date TIMESTAMP,
+                       name VARCHAR(255) NOT NULL,
+                       surname VARCHAR(255) NOT NULL,
+                       birth_date TIMESTAMP NOT NULL,
                        email VARCHAR(255) UNIQUE NOT NULL,
-                       status BOOLEAN DEFAULT true,
+                       active BOOLEAN DEFAULT true,
                        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
                        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
@@ -24,3 +24,7 @@ CREATE TABLE IF NOT EXISTS payment_cards (
                                user_id BIGINT NOT NULL,
                                CONSTRAINT fk_payment_cards_user FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
 );
+-- changeset vladfilyushkin:3
+CREATE INDEX IF NOT EXISTS idx_users_email ON users(email);
+CREATE INDEX IF NOT EXISTS idx_users_name_surname ON users(name, surname);
+CREATE INDEX IF NOT EXISTS idx_cards_user_id ON payment_cards(user_id);

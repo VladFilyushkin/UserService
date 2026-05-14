@@ -29,8 +29,8 @@ public class PaymentCard extends BaseEntity {
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
   private Long id;
-  @Column(name = "number", nullable = false)
-  private Long number;
+  @Column(name = "number", nullable = false, length = 19)
+  private String number;
   @Column(name = "holder", nullable = false)
   private String holder;
   @Column(name = "expiration_date", nullable = false)
