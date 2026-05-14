@@ -3,7 +3,7 @@ package com.innowise.userservice.controller;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-import com.innowise.userservice.config.BaseIntegrationTest;
+import com.innowise.userservice.config.IntegrationTestBase;
 import com.innowise.userservice.dto.request.UpdateUserRequest;
 import com.innowise.userservice.dto.request.UserRequest;
 import com.innowise.userservice.entity.User;
@@ -13,12 +13,18 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
 import org.springframework.http.MediaType;
+import org.springframework.security.test.context.support.WithMockUser;
+import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import com.fasterxml.jackson.databind.ObjectMapper;
-
-class UserControllerIntegrationTest extends BaseIntegrationTest {
+@AutoConfigureMockMvc(addFilters = false)
+@SpringBootTest
+@ActiveProfiles("test")
+class UserControllerIntegrationTest extends IntegrationTestBase {
 
   @Autowired
   private MockMvc mockMvc;
@@ -53,6 +59,7 @@ class UserControllerIntegrationTest extends BaseIntegrationTest {
 
 
   @Test
+  @WithMockUser(roles = "ADMIN")
   void getUserById_ShouldReturnUser() throws Exception {
     mockMvc.perform(MockMvcRequestBuilders.get("/api/users/{id}", user.getId()))
         .andExpect(status().isOk())
@@ -62,12 +69,14 @@ class UserControllerIntegrationTest extends BaseIntegrationTest {
   }
 
   @Test
+  @WithMockUser(roles = "ADMIN")
   void getUserById_ShouldReturnNotFound_WhenUserDoesNotExist() throws Exception {
     mockMvc.perform(MockMvcRequestBuilders.get("/api/users/{id}", 55L))
         .andExpect(status().isNotFound());
   }
 
   @Test
+  @WithMockUser(roles = "ADMIN")
   void createUser_ShouldCreateUser() throws Exception {
     UserRequest userRequest = new UserRequest();
     userRequest.setName("John");
@@ -84,6 +93,7 @@ class UserControllerIntegrationTest extends BaseIntegrationTest {
   }
 
   @Test
+  @WithMockUser(roles = "ADMIN")
   void updateUser_ShouldUpdateUser() throws Exception {
     UpdateUserRequest updateRequest = new UpdateUserRequest();
     updateRequest.setName("Updated Name");
@@ -101,6 +111,7 @@ class UserControllerIntegrationTest extends BaseIntegrationTest {
   }
 
   @Test
+  @WithMockUser(roles = "ADMIN")
   void deactivateUser_ShouldDeactivateUser() throws Exception {
     mockMvc.perform(MockMvcRequestBuilders.patch("/api/users/{id}/deactivate", user.getId()))
         .andExpect(status().isNoContent());
@@ -109,6 +120,7 @@ class UserControllerIntegrationTest extends BaseIntegrationTest {
   }
 
   @Test
+  @WithMockUser(roles = "ADMIN")
   void deleteUser_ShouldDeleteUser() throws Exception {
     mockMvc.perform(MockMvcRequestBuilders.delete("/api/users/{id}", user.getId()))
         .andExpect(status().isNoContent());
@@ -117,6 +129,7 @@ class UserControllerIntegrationTest extends BaseIntegrationTest {
   }
 
   @Test
+  @WithMockUser(roles = "ADMIN")
   void getUserByEmail_ShouldReturnUser() throws Exception {
     mockMvc.perform(MockMvcRequestBuilders.get("/api/users/email/")
             .param("email", user.getEmail()))
@@ -126,6 +139,7 @@ class UserControllerIntegrationTest extends BaseIntegrationTest {
   }
 
   @Test
+  @WithMockUser(roles = "ADMIN")
   void getUserByEmail_ShouldReturnNotFound_WhenEmailNotFound() throws Exception {
     mockMvc.perform(MockMvcRequestBuilders.get("/api/users/email/")
             .param("email", "nonexistent@mail.com"))
@@ -133,6 +147,7 @@ class UserControllerIntegrationTest extends BaseIntegrationTest {
   }
 
   @Test
+  @WithMockUser(roles = "ADMIN")
   void findAllUsers_ShouldReturnAllUsers() throws Exception {
     UserRequest userRequest = new UserRequest();
     userRequest.setName("Alice");
@@ -154,6 +169,7 @@ class UserControllerIntegrationTest extends BaseIntegrationTest {
 
 
   @Test
+  @WithMockUser(roles = "ADMIN")
   void createUser_ShouldReturnBadRequest_WhenMissingRequiredFields() throws Exception {
     UserRequest invalidUserRequest = new UserRequest();
     invalidUserRequest.setSurname("Doe");
@@ -167,6 +183,7 @@ class UserControllerIntegrationTest extends BaseIntegrationTest {
   }
 
   @Test
+  @WithMockUser(roles = "ADMIN")
   void createUser_ShouldReturnBadRequest_WhenInvalidEmail() throws Exception {
     UserRequest invalidEmailRequest = new UserRequest();
     invalidEmailRequest.setName("John");
@@ -181,6 +198,7 @@ class UserControllerIntegrationTest extends BaseIntegrationTest {
   }
 
   @Test
+  @WithMockUser(roles = "ADMIN")
   void createUser_ShouldReturnBadRequest_WhenBirthDateIsInTheFuture() throws Exception {
     UserRequest invalidBirthDateRequest = new UserRequest();
     invalidBirthDateRequest.setName("John");
@@ -195,6 +213,7 @@ class UserControllerIntegrationTest extends BaseIntegrationTest {
   }
 
   @Test
+  @WithMockUser(roles = "ADMIN")
   void updateUser_ShouldReturnBadRequest_WhenInvalidEmail() throws Exception {
     UpdateUserRequest updateRequest = new UpdateUserRequest();
     updateRequest.setName("Updated Name");
@@ -209,6 +228,7 @@ class UserControllerIntegrationTest extends BaseIntegrationTest {
   }
 
   @Test
+  @WithMockUser(roles = "ADMIN")
   void updateUser_ShouldReturnBadRequest_WhenBirthDateIsInTheFuture() throws Exception {
     UpdateUserRequest updateRequest = new UpdateUserRequest();
     updateRequest.setName("Updated Name");
@@ -222,12 +242,14 @@ class UserControllerIntegrationTest extends BaseIntegrationTest {
   }
 
   @Test
+  @WithMockUser(roles = "ADMIN")
   void deactivateUser_ShouldReturnNotFound_WhenUserDoesNotExist() throws Exception {
     mockMvc.perform(MockMvcRequestBuilders.patch("/api/users/{id}/deactivate", 999L))
         .andExpect(status().isNotFound());
   }
 
   @Test
+  @WithMockUser(roles = "ADMIN")
   void deleteUser_ShouldReturnNotFound_WhenUserDoesNotExist() throws Exception {
     mockMvc.perform(MockMvcRequestBuilders.delete("/api/users/{id}", 999L))
         .andExpect(status().isNotFound());
@@ -235,6 +257,7 @@ class UserControllerIntegrationTest extends BaseIntegrationTest {
 
 
   @Test
+  @WithMockUser(roles = "ADMIN")
   void findAllUsers_ShouldReturnBadRequest_WhenInvalidPageNumber() throws Exception {
     mockMvc.perform(MockMvcRequestBuilders.get("/api/users")
             .param("page", "-1")

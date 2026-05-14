@@ -27,39 +27,39 @@ import org.springframework.web.bind.annotation.RestController;
 public class UserController {
 
   private final UserService userService;
-
+  @PreAuthorize("hasRole('ADMIN')")
   @GetMapping
   public ResponseEntity<Page<UserResponse>> findAllUsers(@Valid UserFilterRequest filterRequest) {
     return ResponseEntity.ok(userService.findAll(filterRequest));
   }
 
-  
+  @PreAuthorize("hasRole('ADMIN')")
   @GetMapping("/{id}")
   public ResponseEntity<UserResponse> findById(@PathVariable Long id) {
     return ResponseEntity.ok(userService.findById(id));
   }
-
+  @PreAuthorize("hasRole('USER') or hasRole('ADMIN')")
   @GetMapping("/email/")
   public ResponseEntity<UserResponse>  findByEmail(@RequestParam String email) {
     return ResponseEntity.ok(userService.findByEmail(email));
   }
-
+  @PreAuthorize("hasRole('USER') or hasRole('ADMIN')")
   @PostMapping
   public ResponseEntity<UserResponse> createUser(@RequestBody @Valid UserRequest request) {
     return ResponseEntity.status(HttpStatus.CREATED).body(userService.create(request));
   }
-
+  @PreAuthorize("hasRole('USER') or hasRole('ADMIN')")
   @PutMapping("/{id}")
   public  ResponseEntity<UserResponse> update(@PathVariable Long id, @RequestBody @Valid UpdateUserRequest request) {
     return ResponseEntity.ok(userService.update(id, request));
   }
-
+  @PreAuthorize("hasRole('USER') or hasRole('ADMIN')")
   @PatchMapping("/{id}/deactivate")
   public ResponseEntity<Void> deactivate(@PathVariable Long id) {
     userService.deactivate(id);
     return ResponseEntity.noContent().build();
   }
-
+  @PreAuthorize("hasRole('ADMIN')")
   @DeleteMapping("/{id}")
   public ResponseEntity<Void> delete(@PathVariable Long id) {
     userService.delete(id);

@@ -9,6 +9,7 @@ import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import com.innowise.userservice.dto.request.PaymentCardFilterRequest;
 import com.innowise.userservice.dto.request.PaymentCardRequest;
 import com.innowise.userservice.dto.response.PaymentCardResponse;
 import com.innowise.userservice.entity.PaymentCard;
@@ -27,6 +28,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.data.domain.Page;
 
 @ExtendWith(MockitoExtension.class)
 class PaymentCardServiceImplTests {
@@ -76,6 +78,20 @@ class PaymentCardServiceImplTests {
     assertEquals(paymentCardResponse, result);
     verify(paymentCardRepository).save(paymentCard);
   }
+  @Test
+  void create_whenInvalidCardData_shouldThrowException() {
+    paymentCardRequest.setNumber("123");
+
+    when(userRepository.findById(1L)).thenReturn(Optional.of(user));
+    when(paymentCardRepository.countByUserIdAndActiveTrue(1L)).thenReturn(0L);
+    when(paymentCardMapper.fromCardRequestToCard(paymentCardRequest))
+        .thenThrow(IllegalArgumentException.class);
+
+    assertThrows(IllegalArgumentException.class, () ->
+        paymentCardService.create(1L, paymentCardRequest));
+
+    verify(paymentCardRepository, never()).save(any());
+  }
 
   @Test
   void createCard_whenUserNotFound_shouldUserNotFound() {
@@ -97,20 +113,6 @@ class PaymentCardServiceImplTests {
 
     verify(paymentCardRepository, never()).save(any());
   }
-  @Test
-  void createCard_whenUserExistsAndUnderLimit_shouldCreateCard() {
-    when(userRepository.findById(1L)).thenReturn(Optional.of(user));
-    when(paymentCardRepository.countByUserIdAndActiveTrue(1L)).thenReturn(0L);
-    when(paymentCardMapper.fromCardRequestToCard(paymentCardRequest)).thenReturn(paymentCard);
-    when(paymentCardRepository.save(paymentCard)).thenReturn(paymentCard);
-    when(paymentCardMapper.fromCardToCardResponse(paymentCard)).thenReturn(paymentCardResponse);
-
-    PaymentCardResponse result = paymentCardService.create(1L, paymentCardRequest);
-
-    assertNotNull(result);
-    assertEquals(paymentCardResponse, result);
-    verify(paymentCardRepository).save(paymentCard);
-  }
 
 
   @Test
@@ -129,6 +131,38 @@ class PaymentCardServiceImplTests {
     when(paymentCardRepository.findById(1L)).thenReturn(Optional.empty());
 
     assertThrows(PaymentCardNotFoundException.class, () -> paymentCardService.findById(1L));
+  }
+  @Test
+  void findAll_whenFilterRequestProvided_shouldReturnPageOfCards() {
+    PaymentCardFilterRequest request = new PaymentCardFilterRequest();
+    request.setPage(0);
+    request.setSize(10);
+
+    when(paymentCardRepository.findAll(
+        any(org.springframework.data.jpa.domain.Specification.class),
+        any(org.springframework.data.domain.Pageable.class)
+    )).thenReturn(org.springframework.data.domain.Page.empty());
+
+    var result = paymentCardService.findAll(request);
+
+    assertNotNull(result);
+    assertEquals(0, result.getTotalElements());
+  }
+
+  @Test
+  void findAll_shouldReturnPage() {
+    PaymentCardFilterRequest request = new PaymentCardFilterRequest();
+    request.setPage(0);
+    request.setSize(10);
+
+    when(paymentCardRepository.findAll(
+        any(org.springframework.data.jpa.domain.Specification.class),
+        any(org.springframework.data.domain.Pageable.class)
+    )).thenReturn(Page.empty());
+
+    Page<PaymentCardResponse> result = paymentCardService.findAll(request);
+
+    assertNotNull(result);
   }
 
   @Test

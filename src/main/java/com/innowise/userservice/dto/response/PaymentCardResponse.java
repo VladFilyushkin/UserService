@@ -1,5 +1,6 @@
 package com.innowise.userservice.dto.response;
 
+import java.io.Serializable;
 import java.time.LocalDateTime;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -10,7 +11,7 @@ import lombok.Setter;
 @NoArgsConstructor
 @Getter
 @Setter
-public class PaymentCardResponse {
+public class PaymentCardResponse implements Serializable {
   private Long id;
   private String number;
   private String holder;

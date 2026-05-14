@@ -16,6 +16,8 @@ import com.innowise.userservice.service.specification.PaymentCardSpecification;
 import jakarta.transaction.Transactional;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -27,30 +29,34 @@ import org.springframework.stereotype.Service;
 public class PaymentCardServiceImpl implements PaymentCardService {
 
   private static final int MAX_CARDS_PER_USER = 5;
+  private static final String PAYMENT_CARDS_CACHE = "paymentCards";
 
   private final PaymentCardRepository paymentCardRepository;
   private final UserRepository userRepository;
   private final PaymentCardMapper paymentCardMapper;
 
-
   @Override
   @Transactional
+  @CacheEvict(value = PAYMENT_CARDS_CACHE, allEntries = true)
   public PaymentCardResponse create(Long userId, PaymentCardRequest request) {
-    User user = userRepository.findById(userId).orElseThrow(() ->
-        new UserNotFoundException(userId));
+    User user = userRepository.findById(userId)
+        .orElseThrow(() -> new UserNotFoundException(userId));
 
     Long activeCardAmount = paymentCardRepository.countByUserIdAndActiveTrue(userId);
-    if(activeCardAmount >= MAX_CARDS_PER_USER) {
+    if (activeCardAmount >= MAX_CARDS_PER_USER) {
       throw new AmountOfCardsException(MAX_CARDS_PER_USER);
     }
+
     PaymentCard paymentCard = paymentCardMapper.fromCardRequestToCard(request);
     paymentCard.setUser(user);
     paymentCard.setActive(true);
+
     PaymentCard savedCard = paymentCardRepository.save(paymentCard);
     return paymentCardMapper.fromCardToCardResponse(savedCard);
   }
 
   @Override
+  @Cacheable(value = PAYMENT_CARDS_CACHE, key = "#id")
   public PaymentCardResponse findById(Long id) {
     PaymentCard paymentCard = paymentCardRepository.findById(id)
         .orElseThrow(() -> new PaymentCardNotFoundException(id));
@@ -58,42 +64,53 @@ public class PaymentCardServiceImpl implements PaymentCardService {
   }
 
   @Override
+  @Cacheable(value = PAYMENT_CARDS_CACHE, key = "'user:' + #userId")
   public List<PaymentCardResponse> findAllByUserId(Long userId) {
-    userRepository.findById(userId).orElseThrow(() ->
-        new UserNotFoundException(userId));
-    List<PaymentCard> listOfCards = paymentCardRepository.findAllByUserId(userId);
-    return listOfCards.stream().map(paymentCardMapper::fromCardToCardResponse).toList();
+    userRepository.findById(userId)
+        .orElseThrow(() -> new UserNotFoundException(userId));
+
+    return paymentCardRepository.findAllByUserId(userId)
+        .stream()
+        .map(paymentCardMapper::fromCardToCardResponse)
+        .toList();
   }
 
-
-    public Page<PaymentCardResponse> findAll(PaymentCardFilterRequest request) {
-      Pageable pageable = PageRequest.of(request.getPage(), request.getSize());
-      Specification<PaymentCard> specification = PaymentCardSpecification.filterByNumberAndStatus(
-          request.getNumber(),
-          request.getActive()
-      );
-      return paymentCardRepository.findAll(specification, pageable)
-          .map(paymentCardMapper::fromCardToCardResponse);
-  }
-
-  @Transactional
   @Override
+  public Page<PaymentCardResponse> findAll(PaymentCardFilterRequest request) {
+    Pageable pageable = PageRequest.of(request.getPage(), request.getSize());
+    Specification<PaymentCard> specification =
+        PaymentCardSpecification.filterByNumberAndStatus(
+            request.getNumber(),
+            request.getActive()
+        );
+
+    return paymentCardRepository.findAll(specification, pageable)
+        .map(paymentCardMapper::fromCardToCardResponse);
+  }
+
+  @Override
+  @Transactional
+  @CacheEvict(value = PAYMENT_CARDS_CACHE, allEntries = true)
   public void deactivate(Long userId, Long cardId) {
     PaymentCard card = paymentCardRepository
         .findByIdAndUserId(cardId, userId)
-        .orElseThrow(() ->
-            new PaymentCardNotFoundException(cardId));
+        .orElseThrow(() -> new PaymentCardNotFoundException(cardId));
+
     if (!card.getActive()) {
       return;
     }
+
     card.setActive(false);
     paymentCardRepository.save(card);
   }
 
   @Override
+  @Transactional
+  @CacheEvict(value = PAYMENT_CARDS_CACHE, allEntries = true)
   public void delete(Long userId, Long cardId) {
     PaymentCard card = paymentCardRepository.findByIdAndUserId(cardId, userId)
         .orElseThrow(() -> new PaymentCardNotFoundException(cardId));
+
     paymentCardRepository.delete(card);
   }
 }

@@ -58,6 +58,7 @@ class PaymentCardControllerTest extends BaseIntegrationTest {
 
 
   @Test
+  @WithMockUser(roles = "ADMIN")
   void createPaymentCard_ShouldCreateCard() throws Exception {
     UserRequest userRequest = new UserRequest();
     userRequest.setName("fsdfds");
@@ -86,6 +87,7 @@ class PaymentCardControllerTest extends BaseIntegrationTest {
   }
 
   @Test
+  @WithMockUser(roles = "ADMIN")
   void getPaymentCardById_ShouldReturnCard() throws Exception {
     mockMvc.perform(MockMvcRequestBuilders
             .get("/api/payment-cards/{id}", paymentCard.getId()))
@@ -95,6 +97,7 @@ class PaymentCardControllerTest extends BaseIntegrationTest {
   }
 
   @Test
+  @WithMockUser(roles = "ADMIN")
   void getAllPaymentCardsByUserId_ShouldReturnCards() throws Exception {
 
     UserRequest userRequest = new UserRequest();
@@ -129,6 +132,7 @@ class PaymentCardControllerTest extends BaseIntegrationTest {
   }
 
   @Test
+  @WithMockUser(roles = "ADMIN")
   void getAllPaymentCards_ShouldReturnCards() throws Exception {
     PaymentCardFilterRequest filterRequest = new PaymentCardFilterRequest();
     filterRequest.setPage(0);
@@ -136,12 +140,13 @@ class PaymentCardControllerTest extends BaseIntegrationTest {
 
     mockMvc.perform(MockMvcRequestBuilders.get("/api/payment-cards")
             .param("page", "0")
-            .param("size", "10"))
+            .param("size", "5"))
         .andExpect(status().isOk())
         .andExpect(jsonPath("$.content.length()").value(1));
   }
 
   @Test
+  @WithMockUser(roles = "ADMIN")
   void deactivatePaymentCard_ShouldDeactivateCard() throws Exception {
 
     UserRequest userRequest = new UserRequest();
@@ -180,6 +185,7 @@ class PaymentCardControllerTest extends BaseIntegrationTest {
   }
 
   @Test
+  @WithMockUser(roles = "ADMIN")
   void createPaymentCard_ShouldReturnBadRequest_WhenInvalidCardNumber() throws Exception {
     PaymentCardRequest invalidPaymentCardRequest = new PaymentCardRequest();
     invalidPaymentCardRequest.setNumber("12345");
@@ -194,6 +200,7 @@ class PaymentCardControllerTest extends BaseIntegrationTest {
   }
 
   @Test
+  @WithMockUser(roles = "ADMIN")
   void createPaymentCard_ShouldReturnBadRequest_WhenExpirationDateIsInThePast() throws Exception {
     PaymentCardRequest invalidPaymentCardRequest = new PaymentCardRequest();
     invalidPaymentCardRequest.setNumber("9876543210987654");
@@ -207,6 +214,7 @@ class PaymentCardControllerTest extends BaseIntegrationTest {
   }
 
   @Test
+  @WithMockUser(roles = "ADMIN")
   void getPaymentCardById_ShouldReturnNotFound_WhenCardDoesNotExist() throws Exception {
     mockMvc.perform(MockMvcRequestBuilders
             .get("/api/payment-cards/{id}", 55L))
@@ -215,6 +223,7 @@ class PaymentCardControllerTest extends BaseIntegrationTest {
 
 
   @Test
+  @WithMockUser(roles = "ADMIN")
   void deactivatePaymentCard_ShouldReturnNotFound_WhenCardDoesNotExist() throws Exception {
     mockMvc.perform(MockMvcRequestBuilders
             .patch("/api/payment-cards/users/{userId}/{cardId}/deactivate", 1L, 55L))
@@ -222,6 +231,7 @@ class PaymentCardControllerTest extends BaseIntegrationTest {
   }
 
   @Test
+  @WithMockUser(roles = "ADMIN")
   void deletePaymentCard_ShouldReturnNotFound_WhenCardDoesNotExist() throws Exception {
     mockMvc.perform(MockMvcRequestBuilders
             .delete("/api/payment-cards/users/{userId}/{cardId}", 1L, 55L))
