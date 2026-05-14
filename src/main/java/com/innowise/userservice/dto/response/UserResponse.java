@@ -1,5 +1,6 @@
 package com.innowise.userservice.dto.response;
 
+import java.io.Serializable;
 import java.time.LocalDateTime;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -11,7 +12,7 @@ import lombok.Setter;
 @Getter
 @Setter
 
-public class UserResponse {
+public class UserResponse implements Serializable {
   private String name;
   private String surname;
   private LocalDateTime birthDate;

@@ -14,6 +14,8 @@ import com.innowise.userservice.service.specification.UserSpecification;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -25,10 +27,13 @@ import org.springframework.stereotype.Service;
 @RequiredArgsConstructor
 public class UserServiceImpl implements UserService {
 
+  private static final String USERS_CACHE = "users";
+
   private final UserRepository userRepository;
   private final UserMapper userMapper;
 
-
+  @Override
+  @Cacheable(value = USERS_CACHE, key = "#id")
   public UserResponse findById(Long id) {
     User user = userRepository.findById(id)
         .orElseThrow(() -> new UserNotFoundException(id));
@@ -36,6 +41,7 @@ public class UserServiceImpl implements UserService {
   }
 
   @Override
+  @Cacheable(value = USERS_CACHE, key = "'email:' + #email")
   public UserResponse findByEmail(String email) {
     User user = userRepository.findByEmail(email)
         .orElseThrow(() -> new UserNotFoundException(email));
@@ -44,6 +50,7 @@ public class UserServiceImpl implements UserService {
 
   @Override
   @Transactional
+  @CacheEvict(value = USERS_CACHE, key = "#request.email")
   public UserResponse create(UserRequest request) {
     userRepository.findByEmail(request.getEmail()).ifPresent(user -> {
       throw new UserAlreadyExistsException(request.getEmail());
@@ -67,7 +74,9 @@ public class UserServiceImpl implements UserService {
     );
     return userRepository.findAll(specification, pageable).map(userMapper::fromUserToUserResponse);
   }
-
+  @Override
+  @CacheEvict(value = USERS_CACHE, key = "#id")
+  @Transactional
   public UserResponse update(Long id, UpdateUserRequest request) {
     User user = userRepository.findById(id)
         .orElseThrow(() -> new UserNotFoundException(id));
@@ -95,6 +104,7 @@ public class UserServiceImpl implements UserService {
 
   @Override
   @Transactional
+  @CacheEvict(value = USERS_CACHE, key = "#id")
   public void deactivate(Long id) {
     User user = userRepository.findByIdAndActiveTrue(id)
         .orElseThrow(() ->
@@ -105,6 +115,7 @@ public class UserServiceImpl implements UserService {
 
   @Override
   @Transactional
+  @CacheEvict(value = USERS_CACHE, key = "#id")
   public void delete(Long id) {
     userRepository.findById(id).orElseThrow(() ->
         new UserNotFoundException(id));

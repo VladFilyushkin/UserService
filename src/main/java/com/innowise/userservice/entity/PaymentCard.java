@@ -35,8 +35,8 @@ public class PaymentCard extends BaseEntity {
   private String holder;
   @Column(name = "expiration_date", nullable = false)
   private LocalDateTime expirationDate;
-  @Column(name = "status")
-  private boolean status;
+  @Column(name = "active", nullable = false)
+  private Boolean active;
   @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "user_id")
   private User user;

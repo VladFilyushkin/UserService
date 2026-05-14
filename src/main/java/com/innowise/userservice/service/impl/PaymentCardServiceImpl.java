@@ -12,7 +12,6 @@ import com.innowise.userservice.mapper.PaymentCardMapper;
 import com.innowise.userservice.repository.PaymentCardRepository;
 import com.innowise.userservice.repository.UserRepository;
 import com.innowise.userservice.service.PaymentCardService;
-
 import com.innowise.userservice.service.specification.PaymentCardSpecification;
 import jakarta.transaction.Transactional;
 import java.util.List;
