@@ -15,10 +15,10 @@ CREATE TABLE IF NOT EXISTS users (
 -- changeset vladfilyushkin:2
 CREATE TABLE IF NOT EXISTS payment_cards (
                                id BIGSERIAL PRIMARY KEY,
-                               number VARCHAR(19) NOT NULL,
+                               number BIGINT NOT NULL,
                                holder VARCHAR(255) NOT NULL,
                                expiration_date TIMESTAMP NOT NULL,
-                               active BOOLEAN DEFAULT true,
+                               status BOOLEAN DEFAULT true,
                                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
                                updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
                                user_id BIGINT NOT NULL,
