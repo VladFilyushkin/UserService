@@ -39,8 +39,8 @@ public class User extends BaseEntity {
   private LocalDateTime birthDate;
   @Column(name = "email", unique = true, nullable = false)
   private String email;
-  @Column(name = "active", nullable = false)
-  private Boolean active;
+  @Column(name = "status", nullable = false)
+  private boolean status;
   @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
   private List<PaymentCard> paymentCards;
 
