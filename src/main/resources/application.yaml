@@ -1,7 +1,19 @@
 spring:
+  config:
+    import: optional:file:.env[.properties]
   application:
     name: User Service
-  profiles:
-    active: ${SPRING_PROFILES_ACTIVE:local}
+  datasource:
+    url: ${DB_URL:jdbc:postgresql://localhost:5432/postgres}
+    username: ${DB_USERNAME:postgres}
+    password: ${DB_PASSWORD:root}
+  data:
+    redis:
+      host: localhost
+      port: 6379
+  jpa:
+    hibernate:
+      ddl-auto: validate
+
 server:
   port: ${SERVER_PORT:8080}

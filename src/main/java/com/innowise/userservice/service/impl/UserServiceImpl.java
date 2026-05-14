@@ -90,8 +90,13 @@ public class UserServiceImpl implements UserService {
     if (request.getBirthDate() != null) {
       user.setBirthDate(request.getBirthDate());
     }
-    if (StringUtils.isNotBlank(request.getEmail())){
-       user.setEmail(request.getEmail());
+    if (StringUtils.isNotBlank(request.getEmail()) &&
+        !request.getEmail().equals(user.getEmail())) {
+      userRepository.findByEmail(request.getEmail()).ifPresent(existingUser -> {
+        throw new UserAlreadyExistsException(request.getEmail());
+      });
+
+      user.setEmail(request.getEmail());
     }
     User updatedUser = userRepository.save(user);
     return userMapper.fromUserToUserResponse(updatedUser);
